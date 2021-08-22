@@ -305,6 +305,7 @@ const Results = ({ className, jobs, ...rest }) => {
             onChange={handleQueryChange}
             placeholder="Filter jobs i.e jobId:8"
             value={query}
+            fullwidth
             variant="outlined"
           />
           <Box flexGrow={1}/>

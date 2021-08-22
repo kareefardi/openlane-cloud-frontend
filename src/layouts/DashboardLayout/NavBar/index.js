@@ -44,16 +44,16 @@ import NavItem from './NavItem';
 
 const sections = [
   {
-    subheader: 'Reports',
-    items: [
-      {
-        title: 'Dashboard',
-        icon: BarChartIcon,
-        href: '/app/reports/dashboard'
-      },
-    ]
-  },
-  {
+//    subheader: 'Reports',
+//    items: [
+//      {
+//        title: 'Dashboard',
+//        icon: BarChartIcon,
+//        href: '/app/reports/dashboard'
+//      },
+//    ]
+//  },
+//  {
     subheader: 'Management',
     items: [
       {

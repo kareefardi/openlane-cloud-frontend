@@ -121,7 +121,7 @@ const routes = [
       {
         exact: true,
         path: '/app/management',
-        component: () => <Redirect to="/app/management/customers" />
+        component: () => <Redirect to="/app/management/jobs" />
       },
       {
         exact: true,
@@ -181,7 +181,8 @@ const routes = [
       {
         exact: true,
         path: '/app',
-        component: () => <Redirect to="/app/reports/dashboard" />
+        // component: () => <Redirect to="/app/reports/dashboard" />
+        component: () => <Redirect to="/app/management/jobs" />
       },
       {
         component: () => <Redirect to="/404" />

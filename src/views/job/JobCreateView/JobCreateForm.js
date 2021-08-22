@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import * as Yup from 'yup';
-import { Formik } from 'formik';
+import { Field, FieldArray, Formik, getIn} from 'formik';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -16,11 +16,18 @@ import {
   FormControlLabel,
   FormHelperText,
   Grid,
+  IconButton,
   Paper,
   TextField,
   Typography,
+  SvgIcon,
   makeStyles, Tabs, Tab, Table, TableBody, TableRow, TableCell, Link
 } from '@material-ui/core';
+import {
+  PlusCircle as PlusCircleIcon,
+  X as XIcon,
+} from 'react-feather';
+
 import QuillEditor from 'src/components/QuillEditor';
 import FilesDropzone from 'src/components/FilesDropzone';
 import TabPanel from '@material-ui/lab/TabPanel';
@@ -134,9 +141,13 @@ const JobCreateForm = ({ className, ...rest }) => {
   return (
     <Formik
       initialValues={{
-        designName: '',
-        repoURL: '',
-        pdkVariant: pdkVariants[0].id,
+        designs: [
+          {
+            designName: '',
+            repoURL: '',
+            pdkVariant: pdkVariants[0].id
+          }
+        ],
         type: types[0].id,
         notificationsEnabled: true,
         regressionScript: {
@@ -154,9 +165,13 @@ const JobCreateForm = ({ className, ...rest }) => {
         submit: null
       }}
       validationSchema={Yup.object().shape({
-        designName: Yup.string().max(255).required(),
-        repoURL: Yup.string().max(5000).required(),
-        pdkVariant: Yup.string().max(255).required(),
+        designs: Yup.array().of(
+          Yup.object().shape({
+            designName: Yup.string().required("Design Name is required"),
+            repoURL: Yup.string().required("Repo url is required"),
+            pdkVariant: Yup.string().max(255).required(),
+          })
+        ),
         type: Yup.string().max(255).required(),
         notificationsEnabled: Yup.bool().required(),
         files: Yup.array(),
@@ -178,6 +193,7 @@ const JobCreateForm = ({ className, ...rest }) => {
         setSubmitting
       }) => {
         try {
+          /*
           await user.firebaseUser.getIdToken().then((idToken) => {
             api.setToken(idToken);
           });
@@ -188,6 +204,8 @@ const JobCreateForm = ({ className, ...rest }) => {
             variant: 'success'
           });
           history.push('/app/management/jobs');
+          */
+         alert(JSON.stringify(values,null,2))
         } catch (err) {
           console.error(err);
           setStatus({ success: false });
@@ -197,7 +215,7 @@ const JobCreateForm = ({ className, ...rest }) => {
       }}
     >
       {({
-          errors,
+        errors,
           handleBlur,
           handleChange,
           handleSubmit,
@@ -205,7 +223,8 @@ const JobCreateForm = ({ className, ...rest }) => {
           setFieldValue,
           touched,
           values
-        }) => (
+
+      }) => (
         <form
           onSubmit={handleSubmit}
           className={clsx(classes.root, className)}
@@ -224,62 +243,204 @@ const JobCreateForm = ({ className, ...rest }) => {
                 <CardHeader title="Job Options"/>
                 <Divider/>
                 <CardContent>
-                  <TextField
-                    error={Boolean(touched.designName && errors.designName)}
-                    fullWidth
-                    helperText={touched.designName && errors.designName}
-                    label="Design Name"
-                    name="designName"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.designName}
-                    variant="outlined"
-                    required
-                  />
-                  <Box
-                    mt={3}
-                    mb={1}
-                  >
-                    <TextField
-                      error={Boolean(touched.repoURL && errors.repoURL)}
-                      fullWidth
-                      helperText={touched.repoURL && errors.repoURL
-                        ? errors.repoURL
-                        : 'Repo must be publicly accessible'}
-                      label="Repo URL"
-                      name="repoURL"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.repoURL}
-                      variant="outlined"
-                      required
-                    />
-                  </Box>
-                  <Box
-                    mt={3}
-                    mb={1}
-                  >
-                    <TextField
-                      fullWidth
-                      label="PDK Variant"
-                      name="pdkVariant"
-                      onChange={handleChange}
-                      select
-                      SelectProps={{ native: true }}
-                      value={values.pdkVariant}
-                      variant="outlined"
-                    >
-                      {pdkVariants.map((pdkVariant) => (
-                        <option
-                          key={pdkVariant.id}
-                          value={pdkVariant.id}
+                  <FieldArray name="designs">
+                    {({ remove, push}) => (
+                      <div>
+                        {values.designs.length > 0 && values.designs.map((design, index) => {
+                          const designName = `designs[${index}].designName`;
+                          const touchedDesignName = getIn(touched, designName);
+                          const errorDesignName = getIn(errors, designName);
+
+                          const repoURL = `designs[${index}].repoURL`;
+                          const touchedRepoURL = getIn(touched, repoURL);
+                          const errorRepoURL = getIn(errors, repoURL);
+
+                          const pdkVariant = `designs[${index}].pdkVariant`;
+                          return (
+                            <div style={{paddingBottom : 10}} key={index}>
+                              <Grid
+                                container
+                                alignItems="center"
+                                spacing={1}
+                              >
+                                <Grid
+                                  item
+                                  xs={4}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    label="Design Name"
+                                    name={designName}
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={design.designName}
+                                    variant="outlined"
+                                    required
+                                    helperText={
+                                      touchedDesignName && errorDesignName
+                                    }
+                                    error={Boolean(touchedDesignName && errorDesignName)}
+                                  />
+                                </Grid>
+                                <Grid
+                                  item
+                                  xs={5}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    label="Repo URL"
+                                    name={repoURL}
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={design.repoURL}
+                                    variant="outlined"
+                                    required
+                                    helperText={
+                                      touchedRepoURL && errorRepoURL
+                                    }
+                                    error={Boolean(touchedRepoURL && errorRepoURL)}
+                                  />
+                                </Grid>
+                                <Grid 
+                                  item
+                                  xs={2}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    label="PDK Variant"
+                                    name={pdkVariant}
+                                    onChange={handleChange}
+                                    select
+                                    SelectProps={{ native: true }}
+                                    value={design.pdkVariant}
+                                    variant="outlined"
+                                  >
+                                    {pdkVariants.map((pdkVariant) => (
+                                      <option
+                                        key={pdkVariant.id}
+                                        value={pdkVariant.id}
+                                      >
+                                        {pdkVariant.name}
+                                      </option>
+                                    ))}
+                                  </TextField>
+                                </Grid>
+                                <Grid
+                                  item
+                                  xs={1}
+                                >
+                                  <Button
+                                    color="secondary"
+                                    variant="contained"
+                                    size="small"
+                                    onClick={() => remove(index)}
+                                  >
+                                    <SvgIcon fontSize="small">
+                                      <XIcon/>
+                                    </SvgIcon>
+                                    Remove
+                                  </Button>
+                                </Grid>
+                              </Grid>
+                            </div>
+                              );
+                        })}
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          className={classes.action}
+                          onClick={() => push({ designName: '', repoURL: '', pdkVariant: pdkVariants[0].id})}
+                          startIcon={
+                            <SvgIcon fontSize="small">
+                              <PlusCircleIcon />
+                            </SvgIcon>
+                          }
                         >
-                          {pdkVariant.name}
-                        </option>
-                      ))}
-                    </TextField>
+                          Add design
+                        </Button>
+                      </div>
+                    )}
+                  </FieldArray>
+                  {/*
+                    <Grid
+                      container
+                      spacing={3}
+                      xs="auto"
+                    >
+                      <Grid
+                        item
+                        xs={4}
+                      >
+                        <TextField
+                          fullWidth
+                          error={Boolean(touched.designName && errors.designName)}
+                          helperText={touched.designName && errors.designName}
+                          label="Design Name"
+                          name="designName"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          value={values.designName}
+                          variant="outlined"
+                          required
+                        />
+                      </Grid>
+                      <Grid item xs={5}>
+                        <TextField
+                          error={Boolean(touched.repoURL && errors.repoURL)}
+                          fullWidth
+                          helperText={touched.repoURL && errors.repoURL
+                            ? errors.repoURL
+                            : 'Repo must be publicly accessible'}
+                          label="Repo URL"
+                          name="repoURL"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          value={values.repoURL}
+                          variant="outlined"
+                          required
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <TextField
+                          fullWidth
+                          label="PDK Variant"
+                          name="pdkVariant"
+                          onChange={handleChange}
+                          select
+                          SelectProps={{ native: true }}
+                          value={values.pdkVariant}
+                          variant="outlined"
+                        >
+                          {pdkVariants.map((pdkVariant) => (
+                            <option
+                              key={pdkVariant.id}
+                              value={pdkVariant.id}
+                            >
+                              {pdkVariant.name}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <Box mt={2}
+                      display="flex"
+                      flexDirection="row-reverse"
+                    >
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        className={classes.action}
+                        startIcon={
+                          <SvgIcon fontSize="small">
+                            <PlusCircleIcon />
+                          </SvgIcon>
+                        }
+                    >
+                      Add design
+                    </Button>
                   </Box>
-                  <Box
+      */}
+                 <Box
                     mt={3}
                     mb={1}
                   >
@@ -303,41 +464,7 @@ const JobCreateForm = ({ className, ...rest }) => {
                       ))}
                     </TextField>
                   </Box>
-                  <Box mt={2}>
-                    <FormControlLabel
-                      control={(
-                        <Checkbox
-                          checked={values.notificationsEnabled}
-                          onChange={handleChange}
-                          value={values.notificationsEnabled}
-                          name="notificationsEnabled"
-                        />
-                      )}
-                      label="Enable notifications for this job"
-                    />
-                  </Box>
-                  {/*  <Typography*/}
-                  {/*    variant="subtitle2"*/}
-                  {/*    color="textSecondary"*/}
-                  {/*  >*/}
-                  {/*    Description*/}
-                  {/*  </Typography>*/}
-                  {/*</Box>*/}
-                  {/*<Paper variant="outlined">*/}
-                  {/*  <QuillEditor*/}
-                  {/*    className={classes.editor}*/}
-                  {/*    value={values.description}*/}
-                  {/*    onChange={(value) => setFieldValue('description', value)}*/}
-                  {/*  />*/}
-                  {/*</Paper>*/}
-                  {/*{(touched.description && errors.description) && (*/}
-                  {/*  <Box mt={2}>*/}
-                  {/*    <FormHelperText error>*/}
-                  {/*      {errors.description}*/}
-                  {/*    </FormHelperText>*/}
-                  {/*  </Box>*/}
-                  {/*)}*/}
-                </CardContent>
+               </CardContent>
               </Card>
               {values.type === 'exploratory' && <Box
                 mt={3}
@@ -437,34 +564,20 @@ const JobCreateForm = ({ className, ...rest }) => {
               xs={12}
               lg={4}
             >
-              <Card>
-                <CardHeader title="Job Resources"/>
-                <Divider/>
-                <CardContent>
-                  <Table>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          CPUs
-                        </TableCell>
-                        <TableCell>
-                          {values.type === 'exploratory' ? 4 : 1}
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          RAM
-                        </TableCell>
-                        <TableCell>
-                          {values.type === 'exploratory' ? 4 * 8 : 8}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </Grid>
+           </Grid>
           </Grid>
+          <>
+            <pre style={{ textAlign: "left" }}>
+              <strong>Values</strong>
+              <br />
+              {JSON.stringify(values, null, 2)}
+            </pre>
+            <pre style={{ textAlign: "left" }}>
+              <strong>Errors</strong>
+              <br />
+              {JSON.stringify(errors, null, 2)}
+            </pre>
+          </>
           {errors.submit && (
             <Box mt={3}>
               <FormHelperText error>

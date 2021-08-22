@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -51,8 +52,8 @@ const CTA = ({ className, ...rest }) => {
         >
           <Button
             color="secondary"
-            component="a"
-            href="#"
+            component={RouterLink}
+            to="/register"
             variant="contained"
           >
             Sign Up
