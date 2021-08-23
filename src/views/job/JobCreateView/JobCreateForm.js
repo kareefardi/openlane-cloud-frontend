@@ -37,6 +37,8 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import useAuth from '../../../hooks/useAuth';
 import api from '../../../api';
 
+const debug = true;
+
 const pdkVariants = [
   {
     id: 'sky130_fd_sc_hd',
@@ -193,19 +195,20 @@ const JobCreateForm = ({ className, ...rest }) => {
         setSubmitting
       }) => {
         try {
-          /*
-          await user.firebaseUser.getIdToken().then((idToken) => {
-            api.setToken(idToken);
-          });
-          await api.postJob(values);
-          setStatus({ success: true });
-          setSubmitting(false);
-          enqueueSnackbar('Job Created', {
-            variant: 'success'
-          });
-          history.push('/app/management/jobs');
-          */
-         alert(JSON.stringify(values,null,2))
+          if (debug == true) {
+            alert(JSON.stringify(values, null, 2))
+          } else {
+            await user.firebaseUser.getIdToken().then((idToken) => {
+              api.setToken(idToken);
+            });
+            await api.postJob(values);
+            setStatus({ success: true });
+            setSubmitting(false);
+            enqueueSnackbar('Job Created', {
+              variant: 'success'
+            });
+            history.push('/app/management/jobs');
+          }
         } catch (err) {
           console.error(err);
           setStatus({ success: false });
@@ -566,19 +569,21 @@ const JobCreateForm = ({ className, ...rest }) => {
             >
            </Grid>
           </Grid>
+          {debug && (
           <>
-            <pre style={{ textAlign: "left" }}>
-              <strong>Values</strong>
-              <br />
-              {JSON.stringify(values, null, 2)}
-            </pre>
-            <pre style={{ textAlign: "left" }}>
-              <strong>Errors</strong>
-              <br />
-              {JSON.stringify(errors, null, 2)}
-            </pre>
-          </>
-          {errors.submit && (
+              <pre style={{ textAlign: "left" }}>
+                <strong>Values</strong>
+                <br />
+                {JSON.stringify(values, null, 2)}
+              </pre>
+              <pre style={{ textAlign: "left" }}>
+                <strong>Errors</strong>
+                <br />
+                {JSON.stringify(errors, null, 2)}
+              </pre>
+            </>
+          )}
+         {errors.submit && (
             <Box mt={3}>
               <FormHelperText error>
                 {errors.submit}
