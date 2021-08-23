@@ -107,8 +107,9 @@ export const reportSections = [
   {
     sectionName: 'Overview',
     fields: [
-      { id: 'PDK_VARIANT', label: 'PDK Variant' },
-      { id: 'runtime', label: 'Runtime' },
+      { id: 'STD_CELL_LIBRARY', label: 'Pdk variant' },
+      { id: 'flow_status', label: 'Flow status' },
+      { id: 'total_runtime', label: 'Total Runtime' },
       { id: 'Peak_Memory_Usage_MB', label: 'Peak Memory Usage', unit: true, unitLabel: 'Mb' },
       { id: 'cell_count', label: 'Cell Count' },
       { id: 'CellPer_mm^2', label: 'Area Per Cell', unit: true, unitLabel: 'mm^2' },
@@ -128,7 +129,6 @@ export const reportSections = [
       { id: 'FP_PDN_HPITCH', label: 'FP_PDN_HPITCH' },
       { id: 'SYNTH_MAX_FANOUT', label: 'SYNTH_MAX_FANOUT' },
       { id: 'SYNTH_STRATEGY', label: 'SYNTH_STRATEGY' },
-      { id: 'ROUTING_STRATEGY', label: 'ROUTING_STRATEGY' },
       { id: 'CELL_PAD', label: 'CELL_PAD' }
     ]
   },
