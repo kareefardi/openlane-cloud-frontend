@@ -44,7 +44,8 @@ export const jobFields = [
       return <Link
         variant="subtitle1"
         color="secondary"
-        to={`${job.id}/details`}
+        to={`jobs/${job.id}/details`}
+        component={RouterLink}
       >
         {job.id}
       </Link>;
