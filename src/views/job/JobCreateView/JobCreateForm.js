@@ -148,7 +148,7 @@ const JobCreateForm = ({ className, ...rest }) => {
             designName: '',
             repoURL: '',
             pdkVariant: pdkVariants[0].id,
-            config: 'config.tcl'
+            config: 'config'
           }
         ],
         type: types[0].id,
