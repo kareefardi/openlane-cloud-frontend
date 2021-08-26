@@ -375,7 +375,7 @@ const JobCreateForm = ({ className, ...rest }) => {
                           color="secondary"
                           variant="contained"
                           className={classes.action}
-                          onClick={() => push({ designName: '', repoURL: '', pdkVariant: pdkVariants[0].id})}
+                          onClick={() => push({ designName: '', repoURL: '', pdkVariant: pdkVariants[0].id, config: 'config'})}
                           startIcon={
                             <SvgIcon fontSize="small">
                               <PlusCircleIcon />
