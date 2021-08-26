@@ -2,6 +2,9 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import useAuth from '../../../hooks/useAuth';
+import api from '../../../api';
+import { useSnackbar } from 'notistack'
 import {
   Box,
   Breadcrumbs,
@@ -31,6 +34,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = ({ className, ...rest }) => {
   const classes = useStyles();
+  const { user } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
 
   return (
     <Grid
@@ -69,29 +74,74 @@ const Header = ({ className, ...rest }) => {
           </Typography>
         </Breadcrumbs>
         <Box p={2}>
-        <Typography
-          variant="h3"
-          color="textPrimary"
-        >
-          All Job Submissions
-        </Typography>
+          <Typography
+            variant="h3"
+            color="textPrimary"
+          >
+            All Job Submissions
+          </Typography>
         </Box>
       </Grid>
       <Grid item>
-        <Button
-          color="secondary"
-          variant="contained"
-          className={classes.action}
-          component={RouterLink}
-          to="/app/management/jobs/create"
-          startIcon={
-            <SvgIcon fontSize="small">
-              <PlusCircleIcon />
-            </SvgIcon>
-          }
+
+        <Grid
+          container
+          spacing={2}
         >
-          New Job
-        </Button>
+          <Grid item>
+            <input
+              className={classes.input}
+              style={{ display: 'none' }}
+              id="raised-button-file"
+              type="file"
+              accept='.json'
+              onChange={(e) => {
+                const fileReader = new FileReader();
+                console.log("log", e.target.files[0]);
+                fileReader.readAsText(e.target.files[0]);
+                fileReader.onload = async (event) => {
+                  var file = event.target.result;
+                  var json = JSON.parse(file);
+                  console.log("log", file);
+                  console.log("log", json.designs);
+                  await user.firebaseUser.getIdToken().then((idToken) => {
+                    api.setToken(idToken);
+                  });
+                  await api.postJob(json);
+                  enqueueSnackbar('Job Created', {
+                    variant: 'success'
+                  });
+                };
+             }}
+            />
+            <label htmlFor="raised-button-file">
+              <Button
+                variant="contained"
+                color='secondary'
+                component="span"
+                startIcon={<UploadIcon/>}
+              >
+                Upload
+              </Button>
+            </label>
+          </Grid>
+          <Grid item>
+            <Button
+              color="secondary"
+              variant="contained"
+              className={classes.action}
+              component={RouterLink}
+              to="/app/management/jobs/create"
+              startIcon={
+                <SvgIcon fontSize="small">
+                  <PlusCircleIcon />
+                </SvgIcon>
+              }
+            >
+              New Job
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );

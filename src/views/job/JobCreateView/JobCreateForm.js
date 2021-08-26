@@ -147,7 +147,8 @@ const JobCreateForm = ({ className, ...rest }) => {
           {
             designName: '',
             repoURL: '',
-            pdkVariant: pdkVariants[0].id
+            pdkVariant: pdkVariants[0].id,
+            config: 'config.tcl'
           }
         ],
         type: types[0].id,
@@ -172,6 +173,7 @@ const JobCreateForm = ({ className, ...rest }) => {
             designName: Yup.string().required("Design Name is required"),
             repoURL: Yup.string().required("Repo url is required"),
             pdkVariant: Yup.string().max(255).required(),
+            config: Yup.string().required("Config is required")
           })
         ),
         type: Yup.string().max(255).required(),
@@ -235,12 +237,10 @@ const JobCreateForm = ({ className, ...rest }) => {
         >
           <Grid
             container
-            spacing={3}
           >
             <Grid
               item
-              xs={12}
-              lg={8}
+              xs
             >
               <Card>
                 <CardHeader title="Job Options"/>
@@ -259,6 +259,10 @@ const JobCreateForm = ({ className, ...rest }) => {
                           const errorRepoURL = getIn(errors, repoURL);
 
                           const pdkVariant = `designs[${index}].pdkVariant`;
+
+                          const config = `designs[${config}].config`; 
+                          const touchedConfig = getIn(touched, config); 
+                          const errorConfig = getIn(errors, config); 
                           return (
                             <div style={{paddingBottom : 10}} key={index}>
                               <Grid
@@ -268,7 +272,7 @@ const JobCreateForm = ({ className, ...rest }) => {
                               >
                                 <Grid
                                   item
-                                  xs={4}
+                                  xs={2}
                                 >
                                   <TextField
                                     fullWidth
@@ -287,7 +291,7 @@ const JobCreateForm = ({ className, ...rest }) => {
                                 </Grid>
                                 <Grid
                                   item
-                                  xs={5}
+                                  xs
                                 >
                                   <TextField
                                     fullWidth
@@ -302,6 +306,25 @@ const JobCreateForm = ({ className, ...rest }) => {
                                       touchedRepoURL && errorRepoURL
                                     }
                                     error={Boolean(touchedRepoURL && errorRepoURL)}
+                                  />
+                                </Grid>
+                                <Grid
+                                  item
+                                  xs={2}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    label="Config"
+                                    name={config}
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={design.config}
+                                    variant="outlined"
+                                    required
+                                    helperText={
+                                      touchedConfig && errorConfig
+                                    }
+                                    error={Boolean(touchedConfig && errorConfig)}
                                   />
                                 </Grid>
                                 <Grid 
@@ -333,15 +356,15 @@ const JobCreateForm = ({ className, ...rest }) => {
                                   xs={1}
                                 >
                                   <Button
+                                    style={{ maxHeight: '50px', minHeight: '50px'}} 
                                     color="secondary"
                                     variant="contained"
                                     size="small"
                                     onClick={() => remove(index)}
                                   >
-                                    <SvgIcon fontSize="small">
+                                    <SvgIcon fontSize="medium">
                                       <XIcon/>
                                     </SvgIcon>
-                                    Remove
                                   </Button>
                                 </Grid>
                               </Grid>
@@ -562,12 +585,6 @@ const JobCreateForm = ({ className, ...rest }) => {
                 </Card>
               </Box>}
             </Grid>
-            <Grid
-              item
-              xs={12}
-              lg={4}
-            >
-           </Grid>
           </Grid>
           {debug && (
           <>
