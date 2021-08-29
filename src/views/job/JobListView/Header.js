@@ -1,10 +1,12 @@
 import React from 'react';
+import Joi from 'joi'
 import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import useAuth from '../../../hooks/useAuth';
 import api from '../../../api';
 import { useSnackbar } from 'notistack'
+import { useHistory } from 'react-router-dom';
 import {
   Box,
   Breadcrumbs,
@@ -32,10 +34,50 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+
+function mergeJson(a, b) {
+  var c = {}
+  for (var key in a) {
+    c[key] = a[key]
+  }
+  for (var key in b) {
+    c[key] = b[key]
+  }
+  return c
+}
+
+
 const Header = ({ className, ...rest }) => {
   const classes = useStyles();
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
+  const base_json = {
+    type: "normal",
+    notificationsEnabled: true,
+    regressionScript: {
+      "GLB_RT_ADJUSTMENT": "",
+      "FP_CORE_UTIL": "",
+      "PL_TARGET_DENSITY": "",
+      "SYNTH_STRATEGY": "",
+      "FP_PDN_VPITCH": "",
+      "FP_PDN_HPITCH": "",
+      "FP_ASPECT_RATIO": "",
+      "SYNTH_MAX_FANOUT": "",
+      "extra": ""
+    },
+    "files": [],
+    "submit": null
+  };
+
+  const file_schema = Joi.object({
+    designs: Joi.array().required().items(Joi.object({
+      designName: Joi.string().required(),
+      pdkVariant: Joi.string().required(),
+      config: Joi.string().required(),
+      repoURL: Joi.string().required(),
+    }))
+  })
 
   return (
     <Grid
@@ -97,29 +139,37 @@ const Header = ({ className, ...rest }) => {
               accept='.json'
               onChange={(e) => {
                 const fileReader = new FileReader();
-                console.log("log", e.target.files[0]);
                 fileReader.readAsText(e.target.files[0]);
                 fileReader.onload = async (event) => {
                   var file = event.target.result;
-                  var json = JSON.parse(file);
-                  console.log("log", file);
-                  console.log("log", json.designs);
-                  await user.firebaseUser.getIdToken().then((idToken) => {
-                    api.setToken(idToken);
-                  });
-                  await api.postJob(json);
-                  enqueueSnackbar('Job Created', {
-                    variant: 'success'
-                  });
+                  try {
+                    var designs_json = JSON.parse(file);
+                    const validated_json = await file_schema.validateAsync(designs_json)
+                    var full_json = mergeJson(validated_json, base_json)
+                    await user.firebaseUser.getIdToken().then((idToken) => {
+                      api.setToken(idToken);
+                    });
+                    await api.postJob(full_json);
+                    enqueueSnackbar('Job Created', {
+                      variant: 'success'
+                    });
+                    history.push('/app/management/jobs');
+
+                  } catch (e) {
+                    enqueueSnackbar('Failed to create job: ' + e, {
+                      variant: 'error'
+                    });
+                    console.log(e);
+                  }
                 };
-             }}
+              }}
             />
             <label htmlFor="raised-button-file">
               <Button
                 variant="contained"
                 color='secondary'
                 component="span"
-                startIcon={<UploadIcon/>}
+                startIcon={<UploadIcon />}
               >
                 Upload
               </Button>
