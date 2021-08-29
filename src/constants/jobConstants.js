@@ -28,6 +28,14 @@ export const getTypeLabel = (jobType) => {
 
 export const getStatusLabel = (jobStatus) => {
   const map = {
+    "prepaing-workflow": {
+      text: 'Prepring workflow',
+      color: 'primary'
+    },
+    scheduling: {
+      text: 'Scheduling',
+      color: 'primary'
+    },
     submitted: {
       text: 'Submitted',
       color: 'primary'
