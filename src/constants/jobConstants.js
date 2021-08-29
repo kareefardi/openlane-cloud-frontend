@@ -36,6 +36,10 @@ export const getStatusLabel = (jobStatus) => {
       text: 'Cloning',
       color: 'primary'
     },
+    published: {
+      text: 'Published',
+      color: 'secondary'
+    },
     scheduled: {
       text: 'Scheduled',
       color: 'secondary'
