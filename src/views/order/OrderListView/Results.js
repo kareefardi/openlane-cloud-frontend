@@ -145,6 +145,10 @@ const getStatusLabel = (jobStatus) => {
     failed: {
       text: 'Failed',
       color: 'error'
+    },
+    published: {
+      text: 'Published',
+      color: 'secondary'
     }
   };
 
